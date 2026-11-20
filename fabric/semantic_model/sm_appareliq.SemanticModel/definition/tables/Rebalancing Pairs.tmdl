@@ -1,0 +1,153 @@
+/// T3 mismatch pairs: aging source market to stock-out destination market with lane, lead time and margin guardrail.
+table 'Rebalancing Pairs'
+
+	/// Aging source market -> stock-out destination market pairs with an open lane.
+	measure 'T3 Mismatch Pairs' = COUNTROWS('Rebalancing Pairs')
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// Units proposed for transfer (sliced by destination market).
+	measure 'Proposed Transfer Units' = SUM('Rebalancing Pairs'[Proposed Units])
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// Units proposed for transfer, sliced by the source (aging) market.
+	measure 'Proposed Transfer Units by Source' = CALCULATE([Proposed Transfer Units], USERELATIONSHIP('Rebalancing Pairs'[Source Market ID], Market[Market ID]))
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// Lane cost of the proposed transfers.
+	measure 'Total Transfer Cost USD' = SUM('Rebalancing Pairs'[Transfer Cost USD])
+		formatString: $#,##0
+		displayFolder: Rebalancing
+
+	/// Full-price revenue protected at the destination by the transfer.
+	measure 'Total Revenue Protected USD' = SUM('Rebalancing Pairs'[Full Price Revenue Protected USD])
+		formatString: $#,##0
+		displayFolder: Rebalancing
+
+	/// Share of pairs whose transfer cost is within the margin guardrail.
+	measure 'Pairs Within Margin Guardrail %' = DIVIDE(CALCULATE([T3 Mismatch Pairs], 'Rebalancing Pairs'[Within Margin Guardrail] = TRUE()), [T3 Mismatch Pairs])
+		formatString: 0.0%
+		displayFolder: Rebalancing
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Source Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: source_market_id
+
+	column 'Destination Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: destination_market_id
+
+	column 'Style ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_id
+
+	column Size
+		dataType: string
+		summarizeBy: none
+		sourceColumn: size
+
+	column 'From Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: from_location_id
+
+	column 'To Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: to_location_id
+
+	column 'Lane Mode'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: lane_mode
+
+	column 'Lane Lead Days'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: lane_lead_days
+
+	column 'Lane Cost Per Unit USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: lane_cost_per_unit_usd
+
+	column 'Proposed Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: proposed_units
+
+	column 'Destination Days To Stockout'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: destination_days_to_stockout
+
+	column 'Source Weeks Of Cover'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: source_weeks_of_cover
+
+	column 'Destination Weeks Of Cover'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: destination_weeks_of_cover
+
+	column 'Arrives Before Stockout'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: arrives_before_stockout
+
+	column 'Transfer Cost Pct Of Price'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: transfer_cost_pct_of_price
+
+	column 'Max Transfer Cost Pct'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: max_transfer_cost_pct
+
+	column 'Within Margin Guardrail'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: within_margin_guardrail
+
+	column 'Transfer Cost USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: transfer_cost_usd
+
+	column 'Full Price Revenue Protected USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: full_price_revenue_protected_usd
+
+	column 'T3 Mismatch Pair'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: t3_mismatch_pair
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Rebalancing Pairs' = entity
+		mode: directLake
+		source
+			entityName: mart_rebalancing_pairs
+			schemaName: gold
+			expressionSource: DL_lh_medallion

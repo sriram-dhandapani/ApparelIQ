@@ -1,0 +1,74 @@
+/// Calendar from 365 days of history through the forward planning horizon.
+table Date
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: date
+
+	column 'Date Key'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column Year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: year
+
+	column Quarter
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: quarter
+
+	column Month
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: month
+
+	column 'Month Name'
+		dataType: string
+		sortByColumn: Month
+		summarizeBy: none
+		sourceColumn: month_name
+
+	column 'ISO Week'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: iso_week
+
+	column 'Day Of Week'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+	column 'Is Weekend'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+	column 'Is History'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_history
+
+	column 'Days From As Of'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: days_from_as_of
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Date = entity
+		mode: directLake
+		source
+			entityName: dim_date
+			schemaName: gold
+			expressionSource: DL_lh_medallion

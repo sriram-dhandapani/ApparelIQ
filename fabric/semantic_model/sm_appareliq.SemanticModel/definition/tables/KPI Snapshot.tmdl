@@ -1,0 +1,57 @@
+/// AN-01..AN-08 values computed by the Gold build, used to reconcile the model measures.
+table 'KPI Snapshot'
+
+	/// KPI value as computed by the Gold build (filter by KPI ID).
+	measure 'KPI Snapshot Value' = SUM('KPI Snapshot'[Value])
+		formatString: #,##0.0000
+		displayFolder: KPIs
+
+	column 'KPI ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: kpi_id
+
+	column 'KPI Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: kpi_name
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column Value
+		dataType: double
+		summarizeBy: none
+		sourceColumn: value
+
+	column Unit
+		dataType: string
+		summarizeBy: none
+		sourceColumn: unit
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: status
+
+	column 'As Of Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: as_of_date
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'KPI Snapshot' = entity
+		mode: directLake
+		source
+			entityName: kpi_snapshot
+			schemaName: gold
+			expressionSource: DL_lh_medallion

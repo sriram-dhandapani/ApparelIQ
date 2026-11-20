@@ -1,0 +1,131 @@
+/// Wholesale partner order lines, commitments and cancellations (T4).
+table 'Wholesale Commitment'
+
+	/// Units ordered by wholesale partners.
+	measure 'Wholesale Ordered Units' = SUM('Wholesale Commitment'[Ordered Units])
+		formatString: #,##0
+		displayFolder: Wholesale
+
+	/// Units committed to wholesale partners (protected from rebalancing).
+	measure 'Wholesale Committed Units' = SUM('Wholesale Commitment'[Committed Units])
+		formatString: #,##0
+		displayFolder: Wholesale
+
+	/// Units cancelled on partner orders.
+	measure 'Wholesale Cancelled Units' = SUM('Wholesale Commitment'[Cancelled Units])
+		formatString: #,##0
+		displayFolder: Wholesale
+
+	/// AN-06 proxy: committed units still intact (committed - cancelled) / committed. True on-time-in-full needs shipment data (KPI Snapshot status PENDING_SHIPMENT_DATA).
+	measure 'AN-06 Partner Service Level' = DIVIDE([Wholesale Committed Units] - [Wholesale Cancelled Units], [Wholesale Committed Units])
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	column 'Order ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: order_id
+
+	column 'Line No'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: line_no
+
+	column 'Partner ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: partner_id
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'Ship From Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ship_from_location_id
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Ordered Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: ordered_units
+
+	column 'Committed Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: committed_units
+
+	column 'Cancelled Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: cancelled_units
+
+	column 'Line Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: line_status
+
+	column 'Effective Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: effective_status
+
+	column 'Order Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: order_status
+
+	column 'Order Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: order_date
+
+	column 'Requested Ship Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: requested_ship_date
+
+	column 'Source Message ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: source_message_id
+
+	column 'Order Change Pct'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: order_change_pct
+
+	column 'T4 Wholesale Change'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: t4_wholesale_change
+
+	column 'DQ Cancel Resend'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_cancel_resend
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Wholesale Commitment' = entity
+		mode: directLake
+		source
+			entityName: fact_wholesale_commitment
+			schemaName: gold
+			expressionSource: DL_lh_medallion

@@ -1,0 +1,57 @@
+/// Projected vs actual outcomes measured after execution (learning loop).
+table 'Decision Outcome'
+
+	/// AN-08: mean absolute percentage error of projected vs actual outcomes.
+	measure 'AN-08 Projection Error %' = AVERAGEX(FILTER('Decision Outcome', 'Decision Outcome'[Projected] <> 0), ABS('Decision Outcome'[Actual] - 'Decision Outcome'[Projected]) / ABS('Decision Outcome'[Projected]))
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	column 'Outcome ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: outcome_id
+
+	column 'Action ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: action_id
+
+	column 'Measured At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: measured_at
+
+	column 'Horizon Days'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: horizon_days
+
+	column Metric
+		dataType: string
+		summarizeBy: none
+		sourceColumn: metric
+
+	column Projected
+		dataType: double
+		summarizeBy: none
+		sourceColumn: projected
+
+	column Actual
+		dataType: double
+		summarizeBy: none
+		sourceColumn: actual
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Decision Outcome' = entity
+		mode: directLake
+		source
+			entityName: decision_outcome
+			schemaName: gold
+			expressionSource: DL_lh_medallion

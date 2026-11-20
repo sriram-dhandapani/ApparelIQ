@@ -1,0 +1,22 @@
+# local config with tenant-specific ids (never commit)
+config/*.local.json
+agent/local.settings.json
+.env
+.env.*
+
+# build output, caches
+dist/
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+.vscode/
+
+# not part of the published repo
+requirements/
+media/
+build-plan.md
+.github/copilot-instructions.md
+docs/*
+!docs/deployment-guide.md
+!docs/architecture.md

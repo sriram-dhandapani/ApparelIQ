@@ -1,0 +1,68 @@
+/// Actions executed after approval, with tier (1 autonomous, 2 approved, 3 watch rule).
+table 'Decision Action'
+
+	/// Actions executed through the action gateway.
+	measure 'Actions Executed' = CALCULATE(COUNTROWS('Decision Action'), NOT ISBLANK('Decision Action'[Executed At]))
+		formatString: #,##0
+		displayFolder: Decisions
+
+	/// AN-07: median hours from decision to execution.
+	measure 'AN-07 Execution Lag Hours (Median)' = MEDIANX(FILTER('Decision Action', NOT ISBLANK('Decision Action'[Executed At])), DATEDIFF(RELATED('Decision Record'[Decided At]), 'Decision Action'[Executed At], MINUTE) / 60.0)
+		formatString: #,##0.00
+		displayFolder: KPIs
+
+	column 'Action ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: action_id
+
+	column 'Decision ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column 'Action Type'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: action_type
+
+	column Tier
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: tier
+
+	column 'Target System'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: target_system
+
+	column 'Payload JSON'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: payload_json
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: status
+
+	column 'Executed At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: executed_at
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Decision Action' = entity
+		mode: directLake
+		source
+			entityName: decision_action
+			schemaName: gold
+			expressionSource: DL_lh_medallion

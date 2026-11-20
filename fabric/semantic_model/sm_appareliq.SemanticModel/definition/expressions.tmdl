@@ -1,0 +1,6 @@
+/// Direct Lake on OneLake: lh_medallion (schema-enabled; tables in schema gold)
+expression DL_lh_medallion =
+		let
+		    Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/{{workspace_id}}/{{lh_medallion_id}}", [HierarchicalNavigation=true])
+		in
+		    Source

@@ -1,0 +1,57 @@
+{
+  "properties": {
+    "description": "ApparelIQ medallion (SYNTHETIC data): lh_medallion setup (lakehouse + zero-copy Bronze shortcuts), then Bronze file-feed generation and mirror validation in parallel, then Silver, then Gold. Ids are filled in by scripts/setup_fabric.py medallion.",
+    "activities": [
+      {
+        "name": "00_lh_medallion_setup",
+        "type": "TridentNotebook",
+        "dependsOn": [],
+        "policy": {"timeout": "0.01:00:00", "retry": 1, "retryIntervalInSeconds": 60, "secureOutput": false, "secureInput": false},
+        "typeProperties": {"notebookId": "{{notebook:00_lh_medallion_setup}}", "workspaceId": "{{workspace_id}}"}
+      },
+      {
+        "name": "01_bronze_generate_sources",
+        "type": "TridentNotebook",
+        "dependsOn": [{"activity": "00_lh_medallion_setup", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.02:00:00", "retry": 0, "retryIntervalInSeconds": 30, "secureOutput": false, "secureInput": false},
+        "typeProperties": {
+          "notebookId": "{{notebook:01_bronze_generate_sources}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {"engagement_scale": {"value": "@pipeline().parameters.engagement_scale", "type": "float"}}
+        }
+      },
+      {
+        "name": "02_bronze_validate_mirrors",
+        "type": "TridentNotebook",
+        "dependsOn": [{"activity": "00_lh_medallion_setup", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.02:00:00", "retry": 1, "retryIntervalInSeconds": 60, "secureOutput": false, "secureInput": false},
+        "typeProperties": {"notebookId": "{{notebook:02_bronze_validate_mirrors}}", "workspaceId": "{{workspace_id}}"}
+      },
+      {
+        "name": "03_silver_transform",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {"activity": "01_bronze_generate_sources", "dependencyConditions": ["Succeeded"]},
+          {"activity": "02_bronze_validate_mirrors", "dependencyConditions": ["Succeeded"]}
+        ],
+        "policy": {"timeout": "0.02:00:00", "retry": 0, "retryIntervalInSeconds": 30, "secureOutput": false, "secureInput": false},
+        "typeProperties": {"notebookId": "{{notebook:03_silver_transform}}", "workspaceId": "{{workspace_id}}"}
+      },
+      {
+        "name": "04_gold_build",
+        "type": "TridentNotebook",
+        "dependsOn": [{"activity": "03_silver_transform", "dependencyConditions": ["Succeeded"]}],
+        "policy": {"timeout": "0.02:00:00", "retry": 0, "retryIntervalInSeconds": 30, "secureOutput": false, "secureInput": false},
+        "typeProperties": {
+          "notebookId": "{{notebook:04_gold_build}}",
+          "workspaceId": "{{workspace_id}}",
+          "parameters": {"enforce_scenario": {"value": "@pipeline().parameters.enforce_scenario", "type": "bool"}}
+        }
+      }
+    ],
+    "parameters": {
+      "engagement_scale": {"type": "float", "defaultValue": 1.0},
+      "enforce_scenario": {"type": "bool", "defaultValue": true}
+    }
+  }
+}

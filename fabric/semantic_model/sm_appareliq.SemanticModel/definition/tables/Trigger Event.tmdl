@@ -1,0 +1,65 @@
+/// Triggers T1-T5 fired by the Gold build for the as-of date.
+table 'Trigger Event'
+
+	/// Trigger events T1-T5 fired for the as-of date.
+	measure 'Triggers Fired' = COUNTROWS('Trigger Event')
+		formatString: #,##0
+		displayFolder: Triggers
+
+	/// Trigger events with HIGH severity.
+	measure 'High Severity Triggers' = CALCULATE([Triggers Fired], 'Trigger Event'[Severity] = "HIGH")
+		formatString: #,##0
+		displayFolder: Triggers
+
+	column 'Trigger ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: trigger_id
+
+	column 'Entity Key'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: entity_key
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column Severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: severity
+
+	column 'Metrics JSON'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: metrics_json
+
+	column 'Fired For Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: fired_for_date
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Trigger Event' = entity
+		mode: directLake
+		source
+			entityName: trigger_event
+			schemaName: gold
+			expressionSource: DL_lh_medallion

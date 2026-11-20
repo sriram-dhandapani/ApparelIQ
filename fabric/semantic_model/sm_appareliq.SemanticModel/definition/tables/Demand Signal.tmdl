@@ -1,0 +1,193 @@
+/// Daily digital intent by style-color x market with sustained-vs-spike classification, events and weather (DS-02, FR-08).
+table 'Demand Signal'
+
+	/// Average daily intent index (1.0 = baseline).
+	measure 'Avg Intent Index' = AVERAGE('Demand Signal'[Intent Index])
+		formatString: #,##0.00
+		displayFolder: Demand
+
+	/// Style-color x market days classified SUSTAINED (FR-08).
+	measure 'Sustained Demand Days' = CALCULATE(COUNTROWS('Demand Signal'), 'Demand Signal'[Demand Class] = "SUSTAINED")
+		formatString: #,##0
+		displayFolder: Demand
+
+	/// Style-color x market days classified SPIKE (event or weather explained, no follow-through).
+	measure 'Spike Days' = CALCULATE(COUNTROWS('Demand Signal'), 'Demand Signal'[Demand Class] = "SPIKE")
+		formatString: #,##0
+		displayFolder: Demand
+
+	column 'Business Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: business_date
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'Style ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_id
+
+	column Color
+		dataType: string
+		summarizeBy: none
+		sourceColumn: color
+
+	column 'Search Volume'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: search_volume
+
+	column 'PDP Views'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: pdp_views
+
+	column 'Add To Cart'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: add_to_cart
+
+	column 'Notify Me'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: notify_me
+
+	column 'Intent Score'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: intent_score
+
+	column 'Intent Index'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: intent_index
+
+	column 'Units Sold'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: units_sold
+
+	column 'App Product Opens'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: app_product_opens
+
+	column 'Wishlist Adds'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: wishlist_adds
+
+	column 'Launch Reminders'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: launch_reminders
+
+	column 'Days Above Threshold 7D'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: days_above_threshold_7d
+
+	column 'Intent Index 7D'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: intent_index_7d
+
+	column 'Jump Ratio'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: jump_ratio
+
+	column 'Units 7D'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: units_7d
+
+	column 'Units Prev 7D'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: units_prev_7d
+
+	column 'Sell Through Confirms'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: sell_through_confirms
+
+	column Category
+		dataType: string
+		summarizeBy: none
+		sourceColumn: category
+
+	column 'Event Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: event_name
+
+	column 'Event Flag'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: event_flag
+
+	column 'Weather Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: weather_status
+
+	column 'Temp Anomaly C'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: temp_anomaly_c
+
+	column 'Precip MM'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: precip_mm
+
+	column 'Precip Ratio'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: precip_ratio
+
+	column 'Weather Flag'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: weather_flag
+
+	column 'DQ Stale Feed'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_stale_feed
+
+	column 'Demand Class'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: demand_class
+
+	column 'Spike Reason'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: spike_reason
+
+	column 'Demand Persistence Score'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: demand_persistence_score
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Demand Signal' = entity
+		mode: directLake
+		source
+			entityName: fact_demand_signal_daily
+			schemaName: gold
+			expressionSource: DL_lh_medallion

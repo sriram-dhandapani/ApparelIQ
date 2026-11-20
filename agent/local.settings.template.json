@@ -1,0 +1,27 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AGENT_QUEUE_NAME": "agent-events",
+    "AZURE_CLIENT_ID": "",
+    "MicrosoftAppTenantId": "<tenant-id>",
+    "SQL_SERVER": "<server>.database.windows.net",
+    "SQL_DATABASE": "<database>",
+    "FABRIC_WORKSPACE_ID": "<workspace-id>",
+    "KQL_QUERY_URI": "https://<eventhouse>.kusto.fabric.microsoft.com",
+    "KQL_DATABASE": "kdb_appareliq",
+    "DATA_AGENT_MCP_URL": "https://api.fabric.microsoft.com/v1/mcp/workspaces/<ws>/dataagents/<id>/agent",
+    "FOUNDRY_OPENAI_ENDPOINT": "https://<foundry>.openai.azure.com",
+    "FOUNDRY_CHAT_DEPLOYMENT": "gpt-4.1",
+    "SEARCH_ENDPOINT": "https://<search>.search.windows.net",
+    "KNOWLEDGE_BASE": "kb-kinetiq-policies",
+    "KNOWLEDGE_SOURCE": "ks-kinetiq-policies",
+    "TEAMS_APP_ID": "<teams-app-id>",
+    "AGENT_USERS_GROUP_ID": "<entra-group-object-id>",
+    "FALLBACK_UPN": "<upn>",
+    "MATERIALITY_GM_USD": "50000",
+    "APPROVAL_SLA_HOURS": "4",
+    "DATA_LABEL": "SYNTHETIC"
+  }
+}

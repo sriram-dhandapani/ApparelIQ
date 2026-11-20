@@ -1,0 +1,131 @@
+{
+  "_comment": "Copy to config/deployment.local.json (git-ignored) and fill in values from the Bicep outputs. No secrets belong here.",
+  "tenant_id": "<entra-tenant-id>",
+  "subscription_id": "<subscription-id>",
+  "resource_group": "Apparels",
+  "location": "centralus",
+  "storage": {
+    "account_name": "<stappareliqXXXXXX>"
+  },
+  "databricks": {
+    "workspace_url": "<adb-NNNN.NN.azuredatabricks.net>",
+    "access_connector_id": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Databricks/accessConnectors/<dbac-...>",
+    "catalog": "appareliq",
+    "schema": "kinetiq_batch",
+    "storage_credential": "sc_appareliq_adls",
+    "external_location": "el_appareliq_unity",
+    "service_credential": "appareliq-sql",
+    "spark_version": "16.4.x-scala2.12",
+    "node_type_id": "Standard_D8ds_v5",
+    "workspace_name": "<dbw-appareliq-...>",
+    "region": "<databricks compute region, e.g. swedencentral>"
+  },
+  "sql": {
+    "server_fqdn": "<sql-appareliq-XXXXXX.database.windows.net>",
+    "database": "sqldb-appareliq-erpwms",
+    "admin_group": "sg-appareliq-sql-admins",
+    "admin_group_id": "<entra-group-object-id>"
+  },
+  "fabric": {
+    "capacity_id": "<fabric-capacity-guid>",
+    "workspace_name": "ApparelIQ",
+    "workspace_id": "<filled by setup_fabric.py workspace>",
+    "workspace_identity_app_id": "<filled by script>",
+    "workspace_identity_sp_id": "<filled by script>",
+    "lakehouses": {
+      "lh_databricks": "<filled by script>",
+      "lh_erp_wms": "<filled by script>",
+      "lh_medallion": "<filled by script>"
+    },
+    "notebooks": {
+      "00_lh_medallion_setup": "<filled by script>",
+      "01_bronze_generate_sources": "<filled by script>",
+      "02_bronze_validate_mirrors": "<filled by script>",
+      "03_silver_transform": "<filled by script>",
+      "04_gold_build": "<filled by script>",
+      "05_rt_event_simulator": "<filled by script>"
+    },
+    "pipelines": {
+      "pl_medallion": "<filled by script>"
+    },
+    "connections": {
+      "databricks": "<filled by script>",
+      "adls": "<filled by script>",
+      "sql": "<filled by script>"
+    },
+    "databricks_sp_app_id": "<filled by script>",
+    "mirrored_catalog_name": "mc_appareliq_uc",
+    "mirrored_catalog_id": "<filled by script>",
+    "vnet_gateway_id": "<filled by script>",
+    "sql_sp_app_id": "<filled by script>",
+    "sql_sp_name": "<filled by script>",
+    "mirrored_database_id": "<filled by script>",
+    "realtime": {
+      "eventhouse_id": "<filled by setup_fabric.py realtime>",
+      "kql_database_id": "<filled by setup_fabric.py realtime>",
+      "query_uri": "<filled by setup_fabric.py realtime>",
+      "eventstream_id": "<filled by setup_fabric.py realtime>",
+      "simulator_notebook_id": "<filled by setup_fabric.py realtime>",
+      "signal_notebook_id": "<filled by setup_fabric.py realtime>",
+      "signal_refresh_minutes": 15,
+      "signal_schedule_days": 7,
+      "dashboard_id": "<filled by setup_fabric.py realtime>"
+    },
+    "semantic_model_id": "<filled by setup_fabric.py semantic>",
+    "ontology": {
+      "ontology_id": "<filled by setup_fabric.py ontology>",
+      "graph_model_id": "<filled by setup_fabric.py ontology>"
+    },
+    "data_agent": {
+      "id": "<filled by setup_fabric.py dataagent>",
+      "name": "<filled by setup_fabric.py dataagent>",
+      "mcp_url": "<filled by setup_fabric.py dataagent>"
+    }
+  },
+  "foundry": {
+    "_comment": "Filled by scripts/setup_foundry.py (config, app, upload). No keys or secrets.",
+    "search_name": "<srch-appareliq-XXXXXX>",
+    "search_endpoint": "https://<srch-appareliq-XXXXXX>.search.windows.net",
+    "search_principal_id": "<search system MI object id>",
+    "account_name": "<aif-appareliq-XXXXXX>",
+    "account_endpoint": "https://<aif-appareliq-XXXXXX>.services.ai.azure.com",
+    "openai_endpoint": "https://<aif-appareliq-XXXXXX>.openai.azure.com",
+    "project_name": "proj-appareliq",
+    "project_endpoint": "https://<aif-appareliq-XXXXXX>.services.ai.azure.com/api/projects/proj-appareliq",
+    "project_principal_id": "<project MI object id>",
+    "chat_deployment": "gpt-4.1",
+    "embedding_deployment": "text-embedding-3-small",
+    "knowledge_source": "ks-kinetiq-policies",
+    "knowledge_base": "kb-kinetiq-policies",
+    "knowledge_base_mcp_url": "<filled by setup_foundry.py kb>",
+    "ingest_app_id": "<filled by setup_foundry.py app>",
+    "ingest_app_object_id": "<filled by setup_foundry.py app>",
+    "ingest_sp_id": "<filled by setup_foundry.py app>",
+    "search_mi_app_id": "<filled by setup_foundry.py app>",
+    "sharepoint": {
+      "share_url": "<folder sharing link passed to upload --share-url>",
+      "site_url": "<filled by setup_foundry.py upload>",
+      "site_id": "<filled by setup_foundry.py upload>",
+      "drive_id": "<filled by setup_foundry.py upload>",
+      "folder_id": "<filled by setup_foundry.py upload>",
+      "folder_url": "<filled by setup_foundry.py upload>"
+    }
+  },
+  "agent_users_group": {
+    "_comment": "See docs/deployment-guide.md step 4.2. Unmapped personas fall back to fallback_user. Allowed characters: letters, digits, space, _ . @ -",
+    "name": "sg-appareliq-agent-users",
+    "object_id": "<Entra group object id>",
+    "fabric_workspace_role": "Viewer",
+    "persona_map": {
+      "dortiz": { "upn": "<director@contoso.com>", "object_id": "<user object id>", "display_name": "<Demo Director>" },
+      "pnair": { "upn": "<planner@contoso.com>", "object_id": "<user object id>", "display_name": "<Demo Planner>" },
+      "ohaddad": { "upn": "<finance@contoso.com>", "object_id": "<user object id>", "display_name": "<Demo Finance>" },
+      "sm-us-1001": { "upn": "<store@contoso.com>", "object_id": "<user object id>", "display_name": "<Demo Store Manager>" }
+    },
+    "fallback_user": { "upn": "<admin@contoso.com>", "object_id": "<user object id>", "display_name": "<Demo Admin>" },
+    "demo_operator": { "upn": "", "object_id": "", "display_name": "" }
+  },
+  "agent": {
+    "_comment": "Filled by scripts/setup_agent.py (deploy, grants, activator, teams-app, foundry-agent, foundry-publish). No secrets."
+  }
+}

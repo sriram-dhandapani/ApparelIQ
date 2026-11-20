@@ -1,0 +1,134 @@
+{
+ "synthetic": true,
+ "run_utc": "2026-11-08T19:45:51Z",
+ "passed": 14,
+ "total": 14,
+ "results": [
+  {
+   "id": "B01",
+   "source": "ontology",
+   "question": "Which US SKU-sizes are at T1 stock-out risk in the batch data, and what is the days to stockout for each?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 26.9,
+   "answer": "**Synthetic demo data \u2014 batch as of 2026-10-31:** Five US SKU-sizes are flagged for T1 projected stock-out risk, with days to stockout ranging from **6.82 to 10.40 days**.\n\n| SKU-size | Days to stockout |\n|---|---:|\n| HM9443-001-10.5 | 6.82 |\n| HM9443-001-11 | 7.60 |\n| HM9443-001-9 | 8.95 |\n| HM9443-100-11 | 10.03 |\n| HM9443-001-9.5 | 10.40 |\n\nSource: `InventoryPosition` / `mart_rebalancing_candidates` batch snapshot, result file `result_0.json`."
+  },
+  {
+   "id": "B02",
+   "source": "ontology",
+   "question": "How many T2 aging-risk trigger events are there in GB?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 21.1,
+   "answer": "There are **15 T2 aging-risk trigger events in GB**. Latest fired date: **2026-10-31** (batch as-of date).  \n*Source: `trigger_event` (synthetic demo data); result: `result_0.json`.*"
+  },
+  {
+   "id": "B03",
+   "source": "ontology",
+   "question": "Which rebalancing transfer pairs are recommended, between which markets, and how many units in total?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 24.3,
+   "answer": "**As of 2026-10-31 (synthetic demo data), 2 rebalancing transfer pairs are recommended:** both move inventory from **GB to US**, totaling **179 units**. Both are scheduled via **OCEAN_AIR** with a **7-day lead time**, arrive before the projected stock-out, and meet the margin guardrail.\n\n- **HM9443-001-9:** 77 units, GB \u2192 US  \n- **HM9443-001-9.5:** 102 units, GB \u2192 US  \n\nSource: **RebalancingPair** (`mart_rebalancing_pairs`), result file `result_0.json`."
+  },
+  {
+   "id": "B04",
+   "source": "ontology",
+   "question": "How much full-price revenue is protected by the recommended transfer pairs, and are they within the margin guardrail?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 23.9,
+   "answer": "As of **2026-10-31**, the **2 recommended transfer pairs protect $25,058.21 in full-price revenue**. Both pairs are **within the margin guardrail**; none are outside it.  \n\n*Source: RebalancingPair (`mart_rebalancing_pairs`), synthetic demo data; details in `result_0.json`.*"
+  },
+  {
+   "id": "B05",
+   "source": "ontology",
+   "question": "Who is the accountable decision owner for the US market?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 27.8,
+   "answer": "As of the 2026-10-31 batch snapshot, **Daniela Ortiz** (`dortiz`) is the accountable decision owner for the **US** across all listed categories\u2014Apparel, Basketball, Football, Lifestyle, Running, Trail, and Training. Her individual approval limit is **5,000 units**; no category shows multiple applicable accountable owners.  \n\nSource: **DecisionRole** (`decision_owner`) joined to **Market** (`dim_market`); synthetic demo data.\n\nFile(s) result_0.json were generated as a result of the query."
+  },
+  {
+   "id": "B06",
+   "source": "ontology",
+   "question": "Who owns decisions for AU LIFESTYLE and what are their approval limits?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 20.4,
+   "answer": "**AU LIFESTYLE has two ACCOUNTABLE decision owners:** Mei Tan (approval limit **5,000 units**) and Grace Kim (**2,000 units**). This is an ownership overlap, so the accountable owner is not unique.\n\nAs of **2026-10-31** (synthetic demo data), source: **DecisionRole / `decision_owner`** (`result_0.json`).\n\n| Role | Owner | Approval limit |\n|---|---|---:|\n| ACCOUNTABLE | Mei Tan | 5,000 units |\n| ACCOUNTABLE | Grace Kim | 2,000 units |\n| PLANNER | Liam Carter | 500 units |\n| WHOLESALE_LEAD | Grace Kim | 0 units |\n| FINANCE | Omar Haddad | 0 units |"
+  },
+  {
+   "id": "B07",
+   "source": "ontology",
+   "question": "What did Fiona Brandt decide on HIST-0003 and why?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 23.5,
+   "answer": "Fiona Brandt **revised** case **HIST-0003** on **2026-09-30 11:20**: she reduced the proposed GB\u2192DE transfer for Cortex Low 9 Glacier Blue from **200 to 140 units**. The reason was **PARTNER_COMMITMENT**\u2014the remaining 60 units were retained in GB for a wholesale partner\u2019s holiday allocation, confirmed by Elena Rossi.  \n\n*Source: Decision record, `result_0.json` (synthetic demo data; batch as-of date: 2026-10-31).*"
+  },
+  {
+   "id": "B08",
+   "source": "ontology",
+   "question": "Which past rebalancing decisions were rejected, by whom, and for what reason?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 34.4,
+   "answer": "As of **2026-10-31**, there were **two rejected synthetic rebalancing decisions**:\n\n- **HIST-0005 \u2014 Daniela Ortiz** rejected it on **2026-10-14** (`INBOUND_PO_SOONER`): an inbound Summit Trek 3 PO was due in Ontario on Oct. 18, before a Brazil transfer could arrive, so the team held for inbound supply instead.  \n- **HIST-0002 \u2014 Mei Tan** rejected it on **2026-09-22** (`DEMAND_NOT_SUSTAINED`): the Japan intent spike followed a Tokyo trail-race weekend and returned to baseline within three days, so a transfer from Australia was not supported.\n\nSources: **Decision** (`decision_record`) and **DecisionCase** (`decision_case`), with approver names resolved through **Person** (`person`); results in `result_0.json` and `result_1.json`."
+  },
+  {
+   "id": "B09",
+   "source": "semantic_model",
+   "question": "What is the AN-01 in-stock rate for the US?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 21.9,
+   "answer": "The US **AN-01 in-stock rate is 66.27%** as of **2026-10-31** (synthetic demo data).  \n**Source:** semantic-model measure **AN-01 In-Stock Rate** (`result_0.json`)."
+  },
+  {
+   "id": "B10",
+   "source": "semantic_model",
+   "question": "What is the AN-07 median decision cycle time in hours for DE?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 20.1,
+   "answer": "**DE\u2019s AN-07 median decision cycle time is 27.58 hours.**  \nSource: semantic-model measure **AN-07 Median Decision Cycle Hours**; batch data as of **2026-10-31** (synthetic demo data). Result: `result_0.json`."
+  },
+  {
+   "id": "B11",
+   "source": "semantic_model",
+   "question": "What is the AN-06 partner service level for GB?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 19.3,
+   "answer": "GB\u2019s **AN-06 Partner Service Level is 89.75%** as of **2026-10-31**.  \nSource: semantic-model measure **AN-06 Partner Service Level** (synthetic demo data; `result_0.json`)."
+  },
+  {
+   "id": "B12",
+   "source": "semantic_model",
+   "question": "What is the AN-03 markdown exposure in USD for BR?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 17.9,
+   "answer": "BR\u2019s **AN-03 Markdown Exposure** is **$353,927.82 USD** as of **2026-10-31** (batch/gold data).  \nSource: semantic-model measure **AN-03 Markdown Exposure USD** (`result_0.json`). All figures are synthetic demo data."
+  },
+  {
+   "id": "B13",
+   "source": "realtime",
+   "question": "What is the latest intraday weeks of cover for HM9443-001-9.5 in the US according to the real-time signal, and when was it measured?",
+   "pass": true,
+   "detail": "expected ~1.2 (+/-0.3)",
+   "seconds": 20.1,
+   "answer": "For the synthetic demo data, **HM9443-001-9.5 in the US had 1.2 weeks of intraday cover**, measured at **2026-11-08 19:30 UTC**. The intraday T1 stockout flag was **not set** (`t1_intraday = 0`).  \n\nSource: InventoryPosition real-time signal (`rt_inventory_signal`), `result_0.json`."
+  },
+  {
+   "id": "B14",
+   "source": "guardrail",
+   "question": "Can you approve the GB to US transfer for HM9443 for me?",
+   "pass": true,
+   "detail": "all expected facts present",
+   "seconds": 10.1,
+   "answer": "I\u2019m read-only and can\u2019t approve or execute a GB-to-US transfer. The accountable owner must approve it through the Teams approval card (write-back flow). I can retrieve the transfer\u2019s proposed units, lead time, margin-guardrail status, and stock-out impact to support the decision."
+  }
+ ]
+}

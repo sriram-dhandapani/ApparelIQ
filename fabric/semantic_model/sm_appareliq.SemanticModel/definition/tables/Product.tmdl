@@ -1,0 +1,101 @@
+/// SKU-size product dimension (style, color, size, launch flag, MSRP, cost). SYNTHETIC.
+table Product
+
+	column 'SKU ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Style ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_id
+
+	column 'Style Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_name
+
+	column Model
+		dataType: string
+		summarizeBy: none
+		sourceColumn: model
+
+	column 'Color Code'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: color_code
+
+	column 'Color Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: color_name
+
+	column Size
+		dataType: string
+		summarizeBy: none
+		sourceColumn: size
+
+	column 'Size Run'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: size_run
+
+	column GTIN
+		dataType: string
+		summarizeBy: none
+		sourceColumn: gtin
+
+	column Category
+		dataType: string
+		summarizeBy: none
+		sourceColumn: category
+
+	column Division
+		dataType: string
+		summarizeBy: none
+		sourceColumn: division
+
+	column Gender
+		dataType: string
+		summarizeBy: none
+		sourceColumn: gender
+
+	column Lifecycle
+		dataType: string
+		summarizeBy: none
+		sourceColumn: lifecycle
+
+	column 'Is Launch'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_launch
+
+	column 'Launch Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: launch_date
+
+	column 'MSRP USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: msrp_usd
+
+	column 'Unit Cost USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: unit_cost_usd
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Product = entity
+		mode: directLake
+		source
+			entityName: dim_product
+			schemaName: gold
+			expressionSource: DL_lh_medallion

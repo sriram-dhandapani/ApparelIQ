@@ -1,0 +1,144 @@
+relationship 'Sell Through Business Date to Date'
+	fromColumn: 'Sell Through'.'Business Date'
+	toColumn: Date.Date
+
+relationship 'Sell Through Location ID to Location'
+	fromColumn: 'Sell Through'.'Location ID'
+	toColumn: Location.'Location ID'
+
+relationship 'Sell Through SKU ID to Product'
+	fromColumn: 'Sell Through'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Sell Through Market ID to Market'
+	fromColumn: 'Sell Through'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Inventory Snapshot Date to Date'
+	fromColumn: Inventory.'Snapshot Date'
+	toColumn: Date.Date
+
+relationship 'Inventory Location ID to Location'
+	fromColumn: Inventory.'Location ID'
+	toColumn: Location.'Location ID'
+
+relationship 'Inventory SKU ID to Product'
+	fromColumn: Inventory.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Inventory Market ID to Market'
+	fromColumn: Inventory.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Demand Signal Business Date to Date'
+	fromColumn: 'Demand Signal'.'Business Date'
+	toColumn: Date.Date
+
+relationship 'Demand Signal Market ID to Market'
+	fromColumn: 'Demand Signal'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Inbound Supply SKU ID to Product'
+	fromColumn: 'Inbound Supply'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Inbound Supply Market ID to Market'
+	fromColumn: 'Inbound Supply'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Inbound Supply ETA Date to Date'
+	fromColumn: 'Inbound Supply'.'ETA Date'
+	toColumn: Date.Date
+
+relationship 'Wholesale Commitment SKU ID to Product'
+	fromColumn: 'Wholesale Commitment'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Wholesale Commitment Market ID to Market'
+	fromColumn: 'Wholesale Commitment'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Wholesale Commitment Partner ID to Partner'
+	fromColumn: 'Wholesale Commitment'.'Partner ID'
+	toColumn: Partner.'Partner ID'
+
+relationship 'Wholesale Commitment Requested Ship Date to Date'
+	fromColumn: 'Wholesale Commitment'.'Requested Ship Date'
+	toColumn: Date.Date
+
+relationship 'Returns Return Local Date to Date'
+	fromColumn: Returns.'Return Local Date'
+	toColumn: Date.Date
+
+relationship 'Returns Location ID to Location'
+	fromColumn: Returns.'Location ID'
+	toColumn: Location.'Location ID'
+
+relationship 'Returns SKU ID to Product'
+	fromColumn: Returns.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Returns Market ID to Market'
+	fromColumn: Returns.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Rebalancing Candidates SKU ID to Product'
+	fromColumn: 'Rebalancing Candidates'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Rebalancing Candidates Market ID to Market'
+	fromColumn: 'Rebalancing Candidates'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Rebalancing Pairs SKU ID to Product'
+	fromColumn: 'Rebalancing Pairs'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Rebalancing Pairs Destination Market ID to Market'
+	fromColumn: 'Rebalancing Pairs'.'Destination Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Rebalancing Pairs Source Market ID to Market'
+	isActive: false
+	fromColumn: 'Rebalancing Pairs'.'Source Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Trigger Event SKU ID to Product'
+	fromColumn: 'Trigger Event'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Trigger Event Market ID to Market'
+	fromColumn: 'Trigger Event'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Trigger Event Fired For Date to Date'
+	fromColumn: 'Trigger Event'.'Fired For Date'
+	toColumn: Date.Date
+
+relationship 'KPI Snapshot Market ID to Market'
+	fromColumn: 'KPI Snapshot'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Decision Case SKU ID to Product'
+	fromColumn: 'Decision Case'.'SKU ID'
+	toColumn: Product.'SKU ID'
+
+relationship 'Decision Case Market ID to Market'
+	fromColumn: 'Decision Case'.'Market ID'
+	toColumn: Market.'Market ID'
+
+relationship 'Decision Recommendation Case ID to Decision Case'
+	fromColumn: 'Decision Recommendation'.'Case ID'
+	toColumn: 'Decision Case'.'Case ID'
+
+relationship 'Decision Record Case ID to Decision Case'
+	fromColumn: 'Decision Record'.'Case ID'
+	toColumn: 'Decision Case'.'Case ID'
+
+relationship 'Decision Action Decision ID to Decision Record'
+	fromColumn: 'Decision Action'.'Decision ID'
+	toColumn: 'Decision Record'.'Decision ID'
+
+relationship 'Decision Outcome Action ID to Decision Action'
+	fromColumn: 'Decision Outcome'.'Action ID'
+	toColumn: 'Decision Action'.'Action ID'

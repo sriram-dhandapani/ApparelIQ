@@ -1,0 +1,45 @@
+/// Wholesale partners by market and tier. SYNTHETIC.
+table Partner
+
+	column 'Partner ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: partner_id
+
+	column 'Partner Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: partner_name
+
+	column 'Market ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column Tier
+		dataType: string
+		summarizeBy: none
+		sourceColumn: tier
+
+	column 'Ship From DC ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ship_from_dc_id
+
+	column Region
+		dataType: string
+		summarizeBy: none
+		sourceColumn: region
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Partner = entity
+		mode: directLake
+		source
+			entityName: dim_partner
+			schemaName: gold
+			expressionSource: DL_lh_medallion

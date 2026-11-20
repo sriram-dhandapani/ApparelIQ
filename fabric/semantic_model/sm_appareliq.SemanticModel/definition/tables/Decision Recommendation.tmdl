@@ -1,0 +1,78 @@
+/// Options S0-S4 simulated per case with projected gross margin and transfer cost.
+table 'Decision Recommendation'
+
+	column 'Recommendation ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: recommendation_id
+
+	column 'Case ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: case_id
+
+	column 'Option ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: option_id
+
+	column 'Option Label'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: option_label
+
+	column Units
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: units
+
+	column 'Source Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: source_location_id
+
+	column 'Destination Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: destination_location_id
+
+	column 'Projected GM USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: projected_gm_usd
+
+	column 'Transfer Cost USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: transfer_cost_usd
+
+	column Confidence
+		dataType: double
+		summarizeBy: none
+		sourceColumn: confidence
+
+	column 'Evidence JSON'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: evidence_json
+
+	column 'Created At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: created_at
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Decision Recommendation' = entity
+		mode: directLake
+		source
+			entityName: decision_recommendation
+			schemaName: gold
+			expressionSource: DL_lh_medallion

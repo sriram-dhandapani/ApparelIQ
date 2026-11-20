@@ -1,0 +1,78 @@
+/// Rebalancing cases opened by the coworker agent from a trigger.
+table 'Decision Case'
+
+	/// Rebalancing cases opened by the agent.
+	measure Cases = COUNTROWS('Decision Case')
+		formatString: #,##0
+		displayFolder: Decisions
+
+	/// Cases not yet closed.
+	measure 'Open Cases' = CALCULATE([Cases], 'Decision Case'[Status] <> "CLOSED")
+		formatString: #,##0
+		displayFolder: Decisions
+
+	column 'Case ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: case_id
+
+	column 'Trigger ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: trigger_id
+
+	column 'Entity Key'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: entity_key
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Opened At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: opened_at
+
+	column Status
+		dataType: string
+		summarizeBy: none
+		sourceColumn: status
+
+	column 'Owner Person ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: owner_person_id
+
+	column Severity
+		dataType: string
+		summarizeBy: none
+		sourceColumn: severity
+
+	column Summary
+		dataType: string
+		summarizeBy: none
+		sourceColumn: summary
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Decision Case' = entity
+		mode: directLake
+		source
+			entityName: decision_case
+			schemaName: gold
+			expressionSource: DL_lh_medallion

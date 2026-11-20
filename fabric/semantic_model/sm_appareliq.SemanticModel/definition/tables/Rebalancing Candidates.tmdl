@@ -1,0 +1,311 @@
+/// SKU-size x market rebalancing mart: cover, days to stock-out, full-price sell-through, T1/T2 flags, markdown exposure.
+table 'Rebalancing Candidates'
+
+	/// SKU-size x market rows in the rebalancing mart.
+	measure 'SKU Markets' = COUNTROWS('Rebalancing Candidates')
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// SKU-size x markets with projected stock-out (weeks of cover < T1 max and intent index >= T1 min, launch only).
+	measure 'T1 Stock-out Risk SKU Markets' = CALCULATE([SKU Markets], 'Rebalancing Candidates'[T1 Stockout Risk] = TRUE())
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// SKU-size x markets with aging inventory (weeks of cover > T2 min and low full-price sell-through).
+	measure 'T2 Aging Risk SKU Markets' = CALCULATE([SKU Markets], 'Rebalancing Candidates'[T2 Aging Risk] = TRUE())
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// Selling plus DC available units.
+	measure 'Mart Available Units' = SUM('Rebalancing Candidates'[Total Available Units])
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// Total available units / (daily rate x 7), weighted across the selection.
+	measure 'Weighted Weeks of Cover' = DIVIDE([Mart Available Units], SUM('Rebalancing Candidates'[Daily Rate]) * 7)
+		formatString: #,##0.00
+		displayFolder: Rebalancing
+
+	/// Units needed to reach the target weeks of cover.
+	measure 'Total Deficit Units' = SUM('Rebalancing Candidates'[Deficit Units])
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// Surplus units above target cover that are not committed to wholesale.
+	measure 'Total Transferable Surplus Units' = SUM('Rebalancing Candidates'[Transferable Surplus Units])
+		formatString: #,##0
+		displayFolder: Rebalancing
+
+	/// AN-02: full-price units since launch / (units since launch + on hand), launch SKU-sizes. Reconciles with KPI Snapshot AN-02.
+	measure 'AN-02 Full-Price Sell-Through' = VAR t = CALCULATETABLE('Rebalancing Candidates', KEEPFILTERS('Rebalancing Candidates'[Is Launch] = TRUE())) RETURN DIVIDE(SUMX(t, 'Rebalancing Candidates'[Full Price Units Since Launch]), MAX(1, SUMX(t, 'Rebalancing Candidates'[Units Since Launch] + 'Rebalancing Candidates'[On Hand Units])))
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	/// AN-03: on-hand units above the aging cover threshold x full price x expected markdown depth. Reconciles with KPI Snapshot AN-03.
+	measure 'AN-03 Markdown Exposure USD' = SUM('Rebalancing Candidates'[Markdown Exposure USD])
+		formatString: $#,##0
+		displayFolder: KPIs
+
+	/// AN-05: share of launch SKU-size x markets with selling-location available units > 0. Reconciles with KPI Snapshot AN-05.
+	measure 'AN-05 Launch Availability' = DIVIDE(CALCULATE([SKU Markets], KEEPFILTERS('Rebalancing Candidates'[Is Launch] = TRUE()), KEEPFILTERS('Rebalancing Candidates'[Selling Available Units] > 0)), CALCULATE([SKU Markets], KEEPFILTERS('Rebalancing Candidates'[Is Launch] = TRUE())))
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'Selling Available Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: selling_available_units
+
+	column 'DC Available Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: dc_available_units
+
+	column 'On Hand Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: on_hand_units
+
+	column 'Selling On Hand Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: selling_on_hand_units
+
+	column 'Committed Wholesale Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: committed_wholesale_units
+
+	column 'In Transit Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: in_transit_units
+
+	column 'DQ Overcommit'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_overcommit
+
+	column 'DQ Negative Stock'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_negative_stock
+
+	column 'Total Available Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: total_available_units
+
+	column 'Daily Rate'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: daily_rate
+
+	column 'Daily Rate 7D'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: daily_rate_7d
+
+	column 'Weeks Of Cover'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: weeks_of_cover
+
+	column 'Selling Weeks Of Cover'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: selling_weeks_of_cover
+
+	column 'Days To Stockout'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: days_to_stockout
+
+	column 'Style ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_id
+
+	column 'Color Code'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: color_code
+
+	column Size
+		dataType: string
+		summarizeBy: none
+		sourceColumn: size
+
+	column Category
+		dataType: string
+		summarizeBy: none
+		sourceColumn: category
+
+	column Lifecycle
+		dataType: string
+		summarizeBy: none
+		sourceColumn: lifecycle
+
+	column 'Is Launch'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_launch
+
+	column 'Launch Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: launch_date
+
+	column 'Unit Cost USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: unit_cost_usd
+
+	column 'MSRP USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: msrp_usd
+
+	column 'Units Since Launch'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: units_since_launch
+
+	column 'Full Price Units Since Launch'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: full_price_units_since_launch
+
+	column 'Full Price Sell Through'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: full_price_sell_through
+
+	column 'Signal Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: signal_date
+
+	column 'Intent Index'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: intent_index
+
+	column 'Intent Index 7D'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: intent_index_7d
+
+	column 'Demand Class'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: demand_class
+
+	column 'Spike Reason'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: spike_reason
+
+	column 'Demand Persistence Score'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: demand_persistence_score
+
+	column 'DQ Stale Feed'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_stale_feed
+
+	column 'Recent Spike 7D'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: recent_spike_7d
+
+	column 'Full Price USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: full_price_usd
+
+	column 'Markdown Pct'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: markdown_pct
+
+	column 'Deficit Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: deficit_units
+
+	column 'Surplus Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: surplus_units
+
+	column 'Transferable Surplus Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: transferable_surplus_units
+
+	column 'T1 Stockout Risk'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: t1_stockout_risk
+
+	column 'T2 Aging Risk'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: t2_aging_risk
+
+	column 'Stockout Date Est'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: stockout_date_est
+
+	column 'Markdown Exposure USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: markdown_exposure_usd
+
+	column 'Rebalancing Role'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: rebalancing_role
+
+	column 'As Of Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: as_of_date
+
+	column 'T3 Mismatch Pair'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: t3_mismatch_pair
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Rebalancing Candidates' = entity
+		mode: directLake
+		source
+			entityName: mart_rebalancing_candidates
+			schemaName: gold
+			expressionSource: DL_lh_medallion

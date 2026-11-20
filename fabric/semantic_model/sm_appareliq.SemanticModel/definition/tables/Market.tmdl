@@ -1,0 +1,70 @@
+/// Marketplaces (AU, BR, DE, GB, JP, US) with FX, accountable owners and owner gaps. SYNTHETIC.
+table Market
+
+	column 'Market ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'Market Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: market_name
+
+	column Region
+		dataType: string
+		summarizeBy: none
+		sourceColumn: region
+
+	column Currency
+		dataType: string
+		summarizeBy: none
+		sourceColumn: currency
+
+	column 'FX USD To Local'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: fx_usd_to_local
+
+	column 'Price Premium'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: price_premium
+
+	column Hemisphere
+		dataType: string
+		summarizeBy: none
+		sourceColumn: hemisphere
+
+	column Timezone
+		dataType: string
+		summarizeBy: none
+		sourceColumn: timezone
+
+	column 'Price Rounding'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: price_rounding
+
+	column 'Accountable Owners'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: accountable_owners
+
+	column 'Owner Gaps'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: owner_gaps
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Market = entity
+		mode: directLake
+		source
+			entityName: dim_market
+			schemaName: gold
+			expressionSource: DL_lh_medallion

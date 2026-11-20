@@ -1,0 +1,131 @@
+/// Inventory position snapshot by location x SKU-size: on hand, allocated, committed, in transit, available, weeks of cover (DS-03/04).
+table Inventory
+
+	/// On-hand units at the latest snapshot in context.
+	measure 'Inventory On Hand Units' = VAR d = MAX(Inventory[Snapshot Date]) RETURN CALCULATE(SUM(Inventory[On Hand Units]), Inventory[Snapshot Date] = d)
+		formatString: #,##0
+		displayFolder: Inventory
+
+	/// Available-to-sell units (on hand - allocated - committed wholesale) at the latest snapshot.
+	measure 'Inventory Available Units' = VAR d = MAX(Inventory[Snapshot Date]) RETURN CALCULATE(SUM(Inventory[Available Units]), Inventory[Snapshot Date] = d)
+		formatString: #,##0
+		displayFolder: Inventory
+
+	/// Units in transit at the latest snapshot.
+	measure 'Inventory In Transit Units' = VAR d = MAX(Inventory[Snapshot Date]) RETURN CALCULATE(SUM(Inventory[In Transit Units]), Inventory[Snapshot Date] = d)
+		formatString: #,##0
+		displayFolder: Inventory
+
+	/// AN-01: share of ranged (selling location x launch SKU-size x day) with available units > 0. Reconciles with KPI Snapshot AN-01.
+	measure 'AN-01 In-Stock Rate' = DIVIDE(CALCULATE(COUNTROWS(Inventory), Inventory[Is In Stock] = TRUE(), KEEPFILTERS(Product[Is Launch] = TRUE()), KEEPFILTERS(Inventory[Location Type] <> "DC")), CALCULATE(COUNTROWS(Inventory), KEEPFILTERS(Product[Is Launch] = TRUE()), KEEPFILTERS(Inventory[Location Type] <> "DC")))
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	column 'Snapshot Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: snapshot_date
+
+	column 'Snapshot Ts'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: snapshot_ts
+
+	column 'Location ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column 'Location Type'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: location_type
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'On Hand Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: on_hand_units
+
+	column 'On Hand Units Raw'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: on_hand_units_raw
+
+	column 'Allocated Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: allocated_units
+
+	column 'Committed Wholesale Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: committed_wholesale_units
+
+	column 'In Transit Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: in_transit_units
+
+	column 'Available Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: available_units
+
+	column 'Demand Rate Daily'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: demand_rate_daily
+
+	column 'Weeks Of Cover'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: weeks_of_cover
+
+	column 'No Recent Sales'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: no_recent_sales
+
+	column 'Is In Stock'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_in_stock
+
+	column 'DQ Negative Stock'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_negative_stock
+
+	column 'DQ Overcommit'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_overcommit
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Inventory = entity
+		mode: directLake
+		source
+			entityName: fact_inventory_snapshot
+			schemaName: gold
+			expressionSource: DL_lh_medallion

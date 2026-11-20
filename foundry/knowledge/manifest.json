@@ -1,0 +1,149 @@
+{
+  "corpus": "DS-18 Kinetiq policy corpus (synthetic)",
+  "documents": [
+    {
+      "document_id": "KQ-POL-101",
+      "title": "Inventory Allocation and Rebalancing Policy",
+      "version": "3.2",
+      "effective": "2026-08-01",
+      "owner": "Global Marketplace Operations",
+      "topics": [
+        "triggers",
+        "rebalancing options",
+        "transfers",
+        "lanes",
+        "replenishment",
+        "channel availability"
+      ],
+      "file": "KQ-POL-101_Inventory_Allocation_and_Rebalancing_Policy.pdf",
+      "sha256": "58d7cab2685fc40cd58a8d05cd898d089e8e95f5bd40a81d0ebeee50710652ad",
+      "sections": [
+        "1. Purpose and scope",
+        "2. Principles",
+        "3. Definitions",
+        "4. Trigger standards",
+        "5. Response options",
+        "6. Transfer rules",
+        "7. Replenishment and inbound supply",
+        "8. Channel availability changes (S3)",
+        "9. Approvals and documentation",
+        "10. Outcome measurement",
+        "11. Worked example (synthetic)"
+      ],
+      "label": "SYNTHETIC"
+    },
+    {
+      "document_id": "KQ-FIN-102",
+      "title": "Markdown, Pricing, and Margin Guardrail Policy",
+      "version": "2.4",
+      "effective": "2026-08-01",
+      "owner": "Finance - Marketplace (Finance Partner: Omar Haddad, ohaddad)",
+      "topics": [
+        "margin guardrails",
+        "price protection",
+        "markdown",
+        "materiality",
+        "demand shaping"
+      ],
+      "file": "KQ-FIN-102_Markdown_Pricing_and_Margin_Guardrail_Policy.pdf",
+      "sha256": "8b640f079f72cfdcd1e3eac67a709eb701e810a0e20ddb1e932067721c6e1128",
+      "sections": [
+        "1. Purpose and scope",
+        "2. Margin guardrails by lifecycle",
+        "3. Gross margin calculation",
+        "4. Launch price protection",
+        "5. Markdown eligibility",
+        "6. Markdown deferral and materiality",
+        "7. Demand shaping (non-price only)",
+        "8. Exceptions"
+      ],
+      "label": "SYNTHETIC"
+    },
+    {
+      "document_id": "KQ-WHS-103",
+      "title": "Wholesale Partner Terms and Service-Level Standard",
+      "version": "1.6",
+      "effective": "2026-08-01",
+      "owner": "Wholesale Operations",
+      "topics": [
+        "partner commitments",
+        "service levels",
+        "order changes",
+        "partner communication",
+        "allocation priority"
+      ],
+      "file": "KQ-WHS-103_Wholesale_Partner_Terms_and_Service_Levels.pdf",
+      "sha256": "bed0aad3656fcdce2a7a9e1c1babe3c411a3358ca4ac7217311a48f5ee50a325",
+      "sections": [
+        "1. Purpose and scope",
+        "2. Partner register",
+        "3. Commitment protection",
+        "4. Service levels",
+        "5. Partner order changes (trigger T4)",
+        "6. Seasonal and holiday allocations",
+        "7. Allocation priority during shortage",
+        "8. Partner communication"
+      ],
+      "label": "SYNTHETIC"
+    },
+    {
+      "document_id": "KQ-BRD-104",
+      "title": "Launch Playbook and Brand Presentation Standards",
+      "version": "4.0",
+      "effective": "2026-08-01",
+      "owner": "Brand and Consumer Experience",
+      "topics": [
+        "launch window",
+        "flagship depth",
+        "size runs",
+        "consumer experience",
+        "demand shaping"
+      ],
+      "file": "KQ-BRD-104_Launch_Playbook_and_Brand_Presentation_Standards.pdf",
+      "sha256": "a4c77e2ccae2a59f90f7a4ca175037d7279ca91d36fa72b4bad0bc123f9af1c7",
+      "sections": [
+        "1. Purpose and scope",
+        "2. Launch window",
+        "3. Availability targets",
+        "4. Flagship minimum assortment depth",
+        "5. Size-run integrity",
+        "6. Consumer-experience limits on channel changes (S3)",
+        "7. Demand-shaping playbook (non-price)",
+        "8. Launch review cadence"
+      ],
+      "label": "SYNTHETIC"
+    },
+    {
+      "document_id": "KQ-GOV-105",
+      "title": "Decision Rights, Approval, and Escalation Handbook",
+      "version": "1.3",
+      "effective": "2026-08-01",
+      "owner": "Global Marketplace Operations - Governance",
+      "topics": [
+        "decision rights",
+        "approval limits",
+        "autonomy tiers",
+        "reason codes",
+        "escalation",
+        "watch rules",
+        "AI agent conduct"
+      ],
+      "file": "KQ-GOV-105_Decision_Rights_Approval_and_Escalation_Handbook.pdf",
+      "sha256": "886631e35acd072286cd52fcb94e080afc40900477ae0a48e778c6b9ea951588",
+      "sections": [
+        "1. Purpose",
+        "2. Roles and accountable owners",
+        "3. Autonomy tiers",
+        "4. Tier 1 approved action set",
+        "5. Tier 2 approval-gated actions",
+        "6. Human actions and reason codes",
+        "7. Response times and escalation",
+        "8. Ownership gaps and dual owners",
+        "9. Watch rules (Tier 3)",
+        "10. Records and audit",
+        "11. AI agent conduct"
+      ],
+      "label": "SYNTHETIC"
+    }
+  ]
+}

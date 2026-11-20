@@ -1,0 +1,80 @@
+/// Daily returns by location x SKU-size x reason.
+table Returns
+
+	/// Units returned.
+	measure 'Total Units Returned' = SUM(Returns[Units Returned])
+		formatString: #,##0
+		displayFolder: Sales
+
+	/// Units returned / units sold.
+	measure 'Return Rate' = DIVIDE([Total Units Returned], [Total Units Sold])
+		formatString: 0.0%
+		displayFolder: Sales
+
+	column 'Return Local Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: return_local_date
+
+	column 'Location ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Reason Code'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: reason_code
+
+	column Channel
+		dataType: string
+		summarizeBy: none
+		sourceColumn: channel
+
+	column 'Return Lines'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: return_lines
+
+	column 'Units Returned'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: units_returned
+
+	column 'Refund Local'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: refund_local
+
+	column 'DQ Returns Exceed Sales'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_returns_exceed_sales
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Returns = entity
+		mode: directLake
+		source
+			entityName: fact_returns_daily
+			schemaName: gold
+			expressionSource: DL_lh_medallion

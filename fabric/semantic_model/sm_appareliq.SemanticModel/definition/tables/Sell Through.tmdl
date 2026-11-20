@@ -1,0 +1,155 @@
+/// Daily units, full-price vs markdown units, net sales, COGS and gross margin by location x SKU-size (DS-01).
+table 'Sell Through'
+
+	/// Units sold, net of nothing (returns are tracked in Returns).
+	measure 'Total Units Sold' = SUM('Sell Through'[Units Sold])
+		formatString: #,##0
+		displayFolder: Sales
+
+	/// Units sold at full price.
+	measure 'Total Full Price Units' = SUM('Sell Through'[Full Price Units])
+		formatString: #,##0
+		displayFolder: Sales
+
+	/// Units sold below full price.
+	measure 'Total Markdown Units' = SUM('Sell Through'[Markdown Units])
+		formatString: #,##0
+		displayFolder: Sales
+
+	/// Share of units sold on markdown.
+	measure 'Markdown Unit Share' = DIVIDE([Total Markdown Units], [Total Units Sold])
+		formatString: 0.0%
+		displayFolder: Sales
+
+	/// Net sales converted to USD.
+	measure 'Total Net Sales USD' = SUM('Sell Through'[Net Sales USD])
+		formatString: $#,##0
+		displayFolder: Sales
+
+	/// Net sales minus COGS, USD.
+	measure 'Total Gross Margin USD' = SUM('Sell Through'[Gross Margin USD])
+		formatString: $#,##0
+		displayFolder: Sales
+
+	/// Gross margin as a share of net sales.
+	measure 'Gross Margin %' = DIVIDE([Total Gross Margin USD], [Total Net Sales USD])
+		formatString: 0.0%
+		displayFolder: Sales
+
+	column 'Business Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: business_date
+
+	column 'Location ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column Channel
+		dataType: string
+		summarizeBy: none
+		sourceColumn: channel
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Style ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_id
+
+	column Color
+		dataType: string
+		summarizeBy: none
+		sourceColumn: color
+
+	column Size
+		dataType: string
+		summarizeBy: none
+		sourceColumn: size
+
+	column 'Units Sold'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: units_sold
+
+	column 'Units Returned'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: units_returned
+
+	column 'Full Price Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: full_price_units
+
+	column 'Markdown Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: markdown_units
+
+	column 'Net Sales Local'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: net_sales_local
+
+	column Currency
+		dataType: string
+		summarizeBy: none
+		sourceColumn: currency
+
+	column 'Net Sales USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: net_sales_usd
+
+	column 'Cogs USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: cogs_usd
+
+	column 'Gross Margin USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: gross_margin_usd
+
+	column 'Is Restated'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_restated
+
+	column 'DQ Returns Exceed Sales'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: dq_returns_exceed_sales
+
+	column 'Source Batch ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: source_batch_id
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Sell Through' = entity
+		mode: directLake
+		source
+			entityName: fact_sell_through_daily
+			schemaName: gold
+			expressionSource: DL_lh_medallion

@@ -1,0 +1,40 @@
+/// Tunable trigger and signal thresholds (owned by the Regional Marketplace Director).
+table 'Trigger Config'
+
+	column 'Trigger ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: trigger_id
+
+	column Parameter
+		dataType: string
+		summarizeBy: none
+		sourceColumn: parameter
+
+	column Value
+		dataType: double
+		summarizeBy: none
+		sourceColumn: value
+
+	column Unit
+		dataType: string
+		summarizeBy: none
+		sourceColumn: unit
+
+	column Description
+		dataType: string
+		summarizeBy: none
+		sourceColumn: description
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Trigger Config' = entity
+		mode: directLake
+		source
+			entityName: trigger_config
+			schemaName: gold
+			expressionSource: DL_lh_medallion

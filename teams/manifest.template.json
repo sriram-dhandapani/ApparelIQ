@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.1",
+  "id": "{{BOT_APP_ID}}",
+  "developer": {
+    "name": "Kinetiq demo (SYNTHETIC)",
+    "websiteUrl": "https://{{FUNCTION_HOST}}",
+    "privacyUrl": "https://{{FUNCTION_HOST}}/privacy",
+    "termsOfUseUrl": "https://{{FUNCTION_HOST}}/terms"
+  },
+  "name": { "short": "Rebalancing Coworker", "full": "Kinetiq Marketplace Rebalancing Coworker (SYNTHETIC demo)" },
+  "description": {
+    "short": "Detects stock-out risk, convenes owners, recommends transfers. Demo data only.",
+    "full": "Semi-autonomous coworker for UC1 Athletic Marketplace Inventory Rebalancing. It listens for Tier-1 stock-out signals from Fabric Real-Time Intelligence, opens a case chat with the accountable people, explains transfer options with policy citations and writes approved stock transfer orders to the ERP only after a named owner approves. All data is SYNTHETIC."
+  },
+  "icons": { "color": "color.png", "outline": "outline.png" },
+  "accentColor": "#0F6CBD",
+  "bots": [
+    {
+      "botId": "{{BOT_APP_ID}}",
+      "scopes": ["groupChat", "personal"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["groupChat", "personal"],
+          "commands": [
+            { "title": "status", "description": "Show the case status and current recommendation" },
+            { "title": "policy", "description": "Ask a policy question, e.g. transfer cost cap for launch styles" },
+            { "title": "data", "description": "Ask a data question, e.g. weeks of cover for HM9443 by market" },
+            { "title": "constraint", "description": "Add a constraint, e.g. exclude DE as a source, re-simulates" }
+          ]
+        }
+      ]
+    }
+  ],
+  "validDomains": ["{{FUNCTION_HOST}}"],
+  "webApplicationInfo": { "id": "{{GRAPH_APP_ID}}" },
+  "authorization": {
+    "permissions": {
+      "resourceSpecific": [ { "name": "Chat.Manage.Chat", "type": "Application" } ]
+    }
+  }
+}

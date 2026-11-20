@@ -1,0 +1,406 @@
+{
+ "entities": {
+  "Product": {
+   "table": "gold.dim_product",
+   "properties": [
+    "SkuId",
+    "StyleId",
+    "StyleName",
+    "Model",
+    "ColorCode",
+    "ColorName",
+    "Size",
+    "SizeRun",
+    "Gtin",
+    "Category",
+    "Division",
+    "Gender",
+    "Lifecycle",
+    "IsLaunch",
+    "LaunchDate",
+    "MsrpUsd",
+    "UnitCostUsd"
+   ],
+   "timeseries": [
+    "RtEventTs",
+    "RtEventType",
+    "RtMarketId",
+    "RtChannel",
+    "RtQty"
+   ]
+  },
+  "Market": {
+   "table": "gold.dim_market",
+   "properties": [
+    "MarketId",
+    "MarketName",
+    "Region",
+    "Currency",
+    "FxUsdToLocal",
+    "PricePremium",
+    "Hemisphere",
+    "Timezone",
+    "PriceRounding",
+    "AccountableOwners",
+    "OwnerGaps"
+   ],
+   "timeseries": []
+  },
+  "Location": {
+   "table": "gold.dim_location",
+   "properties": [
+    "LocationId",
+    "LocationName",
+    "LocationType",
+    "Format",
+    "MarketId",
+    "City",
+    "StateProvince",
+    "Latitude",
+    "Longitude",
+    "Timezone",
+    "ServingDcId",
+    "OpenedDate",
+    "MarketName",
+    "Region",
+    "Currency"
+   ],
+   "timeseries": [
+    "RtEventTs",
+    "RtEventType",
+    "RtToLocationId",
+    "RtSkuId",
+    "RtSignedQty",
+    "RtReferenceId"
+   ]
+  },
+  "WholesalePartner": {
+   "table": "gold.dim_partner",
+   "properties": [
+    "PartnerId",
+    "PartnerName",
+    "MarketId",
+    "Tier",
+    "ShipFromDcId",
+    "Region"
+   ],
+   "timeseries": []
+  },
+  "InventoryPosition": {
+   "table": "gold.mart_rebalancing_candidates",
+   "properties": [
+    "SkuId",
+    "MarketId",
+    "SellingAvailableUnits",
+    "DcAvailableUnits",
+    "OnHandUnits",
+    "SellingOnHandUnits",
+    "CommittedWholesaleUnits",
+    "InTransitUnits",
+    "DqOvercommit",
+    "DqNegativeStock",
+    "TotalAvailableUnits",
+    "DailyRate",
+    "DailyRate7d",
+    "WeeksOfCover",
+    "SellingWeeksOfCover",
+    "DaysToStockout",
+    "StyleId",
+    "ColorCode",
+    "Size",
+    "Category",
+    "Lifecycle",
+    "IsLaunch",
+    "LaunchDate",
+    "UnitCostUsd",
+    "MsrpUsd",
+    "UnitsSinceLaunch",
+    "FullPriceUnitsSinceLaunch",
+    "FullPriceSellThrough",
+    "SignalDate",
+    "IntentIndex",
+    "IntentIndex7d",
+    "DemandClass",
+    "SpikeReason",
+    "DemandPersistenceScore",
+    "DqStaleFeed",
+    "RecentSpike7d",
+    "FullPriceUsd",
+    "MarkdownPct",
+    "DeficitUnits",
+    "SurplusUnits",
+    "TransferableSurplusUnits",
+    "T1StockoutRisk",
+    "T2AgingRisk",
+    "StockoutDateEst",
+    "MarkdownExposureUsd",
+    "RebalancingRole",
+    "AsOfDate",
+    "T3MismatchPair"
+   ],
+   "timeseries": [
+    "RtEventTs",
+    "RtEventType",
+    "RtLocationId",
+    "RtChannel",
+    "RtQty",
+    "RtAmountLocal",
+    "RtCurrency",
+    "SignalTs",
+    "SignalIntradayAvailable",
+    "SignalRtUnits",
+    "SignalRtReceipts",
+    "SignalIntradayRate",
+    "SignalIntradayWeeksOfCover",
+    "SignalIntentIndexIntraday",
+    "SignalIntentUsed",
+    "SignalT1Intraday"
+   ]
+  },
+  "InboundPO": {
+   "table": "gold.fact_inbound_supply",
+   "properties": [
+    "PoId",
+    "LineNo",
+    "SkuId",
+    "StyleId",
+    "VendorId",
+    "ShipToLocationId",
+    "MarketId",
+    "OrderedUnits",
+    "UnitCostUsd",
+    "PoDate",
+    "OriginalPromiseDate",
+    "CurrentPromiseDate",
+    "EtaDate",
+    "SlipDays",
+    "PoStatus",
+    "Incoterm",
+    "IsLaunch",
+    "T5InboundSlip"
+   ],
+   "timeseries": []
+  },
+  "WholesaleCommitment": {
+   "table": "gold.fact_wholesale_commitment",
+   "properties": [
+    "OrderId",
+    "LineNo",
+    "PartnerId",
+    "MarketId",
+    "ShipFromLocationId",
+    "SkuId",
+    "OrderedUnits",
+    "CommittedUnits",
+    "CancelledUnits",
+    "LineStatus",
+    "EffectiveStatus",
+    "OrderStatus",
+    "OrderDate",
+    "RequestedShipDate",
+    "SourceMessageId",
+    "OrderChangePct",
+    "T4WholesaleChange",
+    "DqCancelResend"
+   ],
+   "timeseries": []
+  },
+  "TransferLane": {
+   "table": "silver.transfer_lane",
+   "properties": [
+    "FromLocationId",
+    "ToLocationId",
+    "Mode",
+    "LeadDays",
+    "CostPerUnitUsd",
+    "FromMarketId",
+    "FromLocationType",
+    "ToMarketId",
+    "ToLocationType",
+    "IsCrossMarket"
+   ],
+   "timeseries": []
+  },
+  "Guardrail": {
+   "table": "silver.margin_guardrail",
+   "properties": [
+    "MarketId",
+    "Category",
+    "Lifecycle",
+    "MinGrossMarginPct",
+    "ProtectionDays",
+    "MaxTransferCostPct"
+   ],
+   "timeseries": []
+  },
+  "RebalancingPair": {
+   "table": "gold.mart_rebalancing_pairs",
+   "properties": [
+    "SkuId",
+    "SourceMarketId",
+    "DestinationMarketId",
+    "StyleId",
+    "Size",
+    "FromLocationId",
+    "ToLocationId",
+    "LaneMode",
+    "LaneLeadDays",
+    "LaneCostPerUnitUsd",
+    "ProposedUnits",
+    "DestinationDaysToStockout",
+    "SourceWeeksOfCover",
+    "DestinationWeeksOfCover",
+    "ArrivesBeforeStockout",
+    "TransferCostPctOfPrice",
+    "MaxTransferCostPct",
+    "WithinMarginGuardrail",
+    "TransferCostUsd",
+    "FullPriceRevenueProtectedUsd",
+    "T3MismatchPair"
+   ],
+   "timeseries": []
+  },
+  "TriggerEvent": {
+   "table": "gold.trigger_event",
+   "properties": [
+    "TriggerId",
+    "EntityKey",
+    "MarketId",
+    "SkuId",
+    "Severity",
+    "FiredForDate"
+   ],
+   "timeseries": []
+  },
+  "Person": {
+   "table": "silver.person",
+   "properties": [
+    "PersonId",
+    "DisplayName",
+    "Title",
+    "HomeMarketId",
+    "Email"
+   ],
+   "timeseries": []
+  },
+  "DecisionRole": {
+   "table": "silver.decision_owner",
+   "properties": [
+    "Category",
+    "MarketId",
+    "Role",
+    "PersonId",
+    "ApprovalLimitUnits",
+    "DisplayName",
+    "Title",
+    "Email"
+   ],
+   "timeseries": []
+  },
+  "DecisionCase": {
+   "table": "gold.decision_case",
+   "properties": [
+    "CaseId",
+    "TriggerId",
+    "EntityKey",
+    "MarketId",
+    "SkuId",
+    "OpenedAt",
+    "Status",
+    "OwnerPersonId",
+    "Severity",
+    "Summary"
+   ],
+   "timeseries": []
+  },
+  "Recommendation": {
+   "table": "gold.decision_recommendation",
+   "properties": [
+    "RecommendationId",
+    "CaseId",
+    "OptionId",
+    "OptionLabel",
+    "Units",
+    "SourceLocationId",
+    "DestinationLocationId",
+    "ProjectedGmUsd",
+    "TransferCostUsd",
+    "Confidence",
+    "CreatedAt"
+   ],
+   "timeseries": []
+  },
+  "Decision": {
+   "table": "gold.decision_record",
+   "properties": [
+    "DecisionId",
+    "CaseId",
+    "RecommendationId",
+    "DecidedBy",
+    "Decision",
+    "ReasonCode",
+    "Comment",
+    "DecidedAt"
+   ],
+   "timeseries": []
+  },
+  "DecisionAction": {
+   "table": "gold.decision_action",
+   "properties": [
+    "ActionId",
+    "DecisionId",
+    "ActionType",
+    "Tier",
+    "TargetSystem",
+    "Status",
+    "ExecutedAt"
+   ],
+   "timeseries": []
+  },
+  "Outcome": {
+   "table": "gold.decision_outcome",
+   "properties": [
+    "OutcomeId",
+    "ActionId",
+    "MeasuredAt",
+    "HorizonDays",
+    "Metric",
+    "Projected",
+    "Actual"
+   ],
+   "timeseries": []
+  }
+ },
+ "relationships": [
+  "(Location)-[:locatedIn]->(Market)",
+  "(Location)-[:servedByDC]->(Location)",
+  "(WholesalePartner)-[:partnerInMarket]->(Market)",
+  "(WholesalePartner)-[:partnerShipsFrom]->(Location)",
+  "(Product)-[:stockedAt]->(Location)",
+  "(InventoryPosition)-[:positionOf]->(Product)",
+  "(InventoryPosition)-[:positionIn]->(Market)",
+  "(WholesaleCommitment)-[:reserves]->(InventoryPosition)",
+  "(WholesaleCommitment)-[:commitmentFor]->(WholesalePartner)",
+  "(InboundPO)-[:replenishes]->(Location)",
+  "(InboundPO)-[:poForProduct]->(Product)",
+  "(TransferLane)-[:laneFrom]->(Location)",
+  "(TransferLane)-[:laneTo]->(Location)",
+  "(Guardrail)-[:guardrailFor]->(Market)",
+  "(RebalancingPair)-[:pairSource]->(InventoryPosition)",
+  "(RebalancingPair)-[:pairDestination]->(InventoryPosition)",
+  "(RebalancingPair)-[:pairUsesLane]->(TransferLane)",
+  "(TriggerEvent)-[:firedOn]->(InventoryPosition)",
+  "(TriggerEvent)-[:firedIn]->(Market)",
+  "(Person)-[:personHomeMarket]->(Market)",
+  "(DecisionRole)-[:roleForMarket]->(Market)",
+  "(DecisionRole)-[:roleHeldBy]->(Person)",
+  "(DecisionCase)-[:caseAbout]->(InventoryPosition)",
+  "(DecisionCase)-[:caseFromTrigger]->(TriggerEvent)",
+  "(DecisionCase)-[:caseOwnedBy]->(Person)",
+  "(Recommendation)-[:recommendedFor]->(DecisionCase)",
+  "(Decision)-[:decides]->(DecisionCase)",
+  "(Decision)-[:chooses]->(Recommendation)",
+  "(Decision)-[:approves]->(DecisionAction)",
+  "(DecisionAction)-[:measuredBy]->(Outcome)"
+ ]
+}

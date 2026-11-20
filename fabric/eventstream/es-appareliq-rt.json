@@ -1,0 +1,23 @@
+{
+  "compatibilityLevel": "1.0",
+  "sources": [
+    {"name": "kinetiq-rt-endpoint", "type": "CustomEndpoint", "properties": {}}
+  ],
+  "streams": [
+    {"name": "es-appareliq-rt-stream", "type": "DefaultStream", "properties": {},
+     "inputNodes": [{"name": "kinetiq-rt-endpoint"}]}
+  ],
+  "operators": [],
+  "destinations": [
+    {"name": "eventhouse-rt-events-raw", "type": "Eventhouse",
+     "properties": {
+       "dataIngestionMode": "ProcessedIngestion",
+       "workspaceId": "{{workspace_id}}",
+       "itemId": "{{kql_db_id}}",
+       "databaseName": "{{kql_db_name}}",
+       "tableName": "rt_events_raw",
+       "inputSerialization": {"type": "Json", "properties": {"encoding": "UTF8"}}
+     },
+     "inputNodes": [{"name": "es-appareliq-rt-stream"}]}
+  ]
+}

@@ -1,0 +1,91 @@
+/// Stores, e-commerce nodes and distribution centers with market attributes. SYNTHETIC.
+table Location
+
+	column 'Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column 'Location Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: location_name
+
+	column 'Location Type'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: location_type
+
+	column Format
+		dataType: string
+		summarizeBy: none
+		sourceColumn: format
+
+	column 'Market ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column City
+		dataType: string
+		summarizeBy: none
+		sourceColumn: city
+
+	column 'State Province'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: state_province
+
+	column Latitude
+		dataType: double
+		summarizeBy: none
+		sourceColumn: latitude
+
+	column Longitude
+		dataType: double
+		summarizeBy: none
+		sourceColumn: longitude
+
+	column Timezone
+		dataType: string
+		summarizeBy: none
+		sourceColumn: timezone
+
+	column 'Serving DC ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: serving_dc_id
+
+	column 'Opened Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: opened_date
+
+	column 'Market Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: market_name
+
+	column Region
+		dataType: string
+		summarizeBy: none
+		sourceColumn: region
+
+	column Currency
+		dataType: string
+		summarizeBy: none
+		sourceColumn: currency
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition Location = entity
+		mode: directLake
+		source
+			entityName: dim_location
+			schemaName: gold
+			expressionSource: DL_lh_medallion

@@ -1,0 +1,127 @@
+/// Open purchase-order lines with promise-date slips (T5).
+table 'Inbound Supply'
+
+	/// Units on open purchase-order lines.
+	measure 'Inbound Units' = SUM('Inbound Supply'[Ordered Units])
+		formatString: #,##0
+		displayFolder: Supply
+
+	/// PO lines whose promise date slipped beyond the T5 threshold.
+	measure 'Slipped PO Lines' = CALCULATE(COUNTROWS('Inbound Supply'), 'Inbound Supply'[T5 Inbound Slip] = TRUE())
+		formatString: #,##0
+		displayFolder: Supply
+
+	/// Average promise-date slip in days.
+	measure 'Avg Slip Days' = AVERAGE('Inbound Supply'[Slip Days])
+		formatString: #,##0.00
+		displayFolder: Supply
+
+	column 'PO ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: po_id
+
+	column 'Line No'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: line_no
+
+	column 'SKU ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: sku_id
+
+	column 'Style ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: style_id
+
+	column 'Vendor ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: vendor_id
+
+	column 'Ship To Location ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: ship_to_location_id
+
+	column 'Market ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: market_id
+
+	column 'Ordered Units'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: ordered_units
+
+	column 'Unit Cost USD'
+		dataType: double
+		summarizeBy: none
+		sourceColumn: unit_cost_usd
+
+	column 'PO Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: po_date
+
+	column 'Original Promise Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: original_promise_date
+
+	column 'Current Promise Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: current_promise_date
+
+	column 'ETA Date'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: eta_date
+
+	column 'Slip Days'
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: slip_days
+
+	column 'PO Status'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: po_status
+
+	column Incoterm
+		dataType: string
+		summarizeBy: none
+		sourceColumn: incoterm
+
+	column 'Is Launch'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: is_launch
+
+	column 'T5 Inbound Slip'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: t5_inbound_slip
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Inbound Supply' = entity
+		mode: directLake
+		source
+			entityName: fact_inbound_supply
+			schemaName: gold
+			expressionSource: DL_lh_medallion

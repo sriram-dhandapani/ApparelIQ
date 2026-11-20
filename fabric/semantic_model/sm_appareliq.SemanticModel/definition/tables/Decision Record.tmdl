@@ -1,0 +1,92 @@
+/// Human decisions (APPROVE, REVISE, DEFER, OVERRIDE, REJECT) with reason codes.
+table 'Decision Record'
+
+	/// Human decisions recorded.
+	measure Decisions = COUNTROWS('Decision Record')
+		formatString: #,##0
+		displayFolder: Decisions
+
+	/// AN-07: median hours from case opened (trigger) to human decision.
+	measure 'AN-07 Decision Cycle Hours (Median)' = MEDIANX('Decision Record', DATEDIFF(RELATED('Decision Case'[Opened At]), 'Decision Record'[Decided At], MINUTE) / 60.0)
+		formatString: #,##0.00
+		displayFolder: KPIs
+
+	/// AN-07: 90th percentile hours from case opened to human decision.
+	measure 'AN-07 Decision Cycle Hours (P90)' = PERCENTILEX.INC('Decision Record', DATEDIFF(RELATED('Decision Case'[Opened At]), 'Decision Record'[Decided At], MINUTE) / 60.0, 0.9)
+		formatString: #,##0.00
+		displayFolder: KPIs
+
+	/// AN-08: share of decisions that approved the recommended option.
+	measure 'AN-08 Approval Rate' = DIVIDE(CALCULATE([Decisions], 'Decision Record'[Decision] = "APPROVE") + 0, [Decisions])
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	/// AN-08: share of decisions that revised the recommendation.
+	measure 'AN-08 Revise Rate' = DIVIDE(CALCULATE([Decisions], 'Decision Record'[Decision] = "REVISE") + 0, [Decisions])
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	/// AN-08: share of decisions that overrode the recommendation (slice by Reason Code).
+	measure 'AN-08 Override Rate' = DIVIDE(CALCULATE([Decisions], 'Decision Record'[Decision] = "OVERRIDE") + 0, [Decisions])
+		formatString: 0.0%
+		displayFolder: KPIs
+
+	/// AN-04: projected GM$ of the chosen option minus projected GM$ of S0 (maintain) for the same case, over executed decisions.
+	measure 'AN-04 Gross-Margin Protection USD' = SUMX(FILTER('Decision Record', 'Decision Record'[Decision] IN {"APPROVE", "REVISE", "OVERRIDE"}), VAR rec = 'Decision Record'[Recommendation ID] VAR cs = 'Decision Record'[Case ID] VAR chosen = CALCULATE(SUM('Decision Recommendation'[Projected GM USD]), REMOVEFILTERS('Decision Recommendation'), 'Decision Recommendation'[Recommendation ID] = rec) VAR base = CALCULATE(SUM('Decision Recommendation'[Projected GM USD]), REMOVEFILTERS('Decision Recommendation'), 'Decision Recommendation'[Case ID] = cs, 'Decision Recommendation'[Option ID] = "S0") RETURN chosen - base)
+		formatString: $#,##0
+		displayFolder: KPIs
+
+	column 'Decision ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column 'Case ID'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: case_id
+
+	column 'Recommendation ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: recommendation_id
+
+	column 'Decided By'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: decided_by
+
+	column Decision
+		dataType: string
+		summarizeBy: none
+		sourceColumn: decision
+
+	column 'Reason Code'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: reason_code
+
+	column Comment
+		dataType: string
+		summarizeBy: none
+		sourceColumn: comment
+
+	column 'Decided At'
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		summarizeBy: none
+		sourceColumn: decided_at
+
+	column 'Record Label'
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: record_label
+
+	partition 'Decision Record' = entity
+		mode: directLake
+		source
+			entityName: decision_record
+			schemaName: gold
+			expressionSource: DL_lh_medallion

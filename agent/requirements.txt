@@ -1,0 +1,7 @@
+# Kinetiq coworker agent (SYNTHETIC demo). Azure SQL driver: mssql-python (no system ODBC needed); pyodbc fallback.
+azure-functions>=1.21
+azure-identity>=1.17
+requests>=2.32
+PyJWT[crypto]>=2.9
+mssql-python>=0.10
+pyodbc>=5.1

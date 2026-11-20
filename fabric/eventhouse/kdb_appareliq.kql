@@ -1,0 +1,201 @@
+// kdb_appareliq - real-time schema for UC1 (DS-15, DS-16, DS-17). ALL DATA IS SYNTHETIC.
+// Deployed by `python scripts/setup_fabric.py realtime` with `.execute database script`; every command is idempotent.
+// {{workspace_id}} / {{lh_medallion_id}} are substituted at deploy time (no environment ids in source control).
+//
+// es-appareliq-rt (Eventstream, custom endpoint) -> rt_events_raw -> update policies -> rt_pos_transaction (DS-15),
+// rt_digital_event (DS-16), rt_inventory_movement (DS-17). The typed tables have OneLake availability on.
+
+// ---------------------------------------------------------------- landing (Eventstream destination)
+.create-merge table rt_events_raw (event_id: string, event_ts: datetime, event_category: string, event_type: string,
+    market_id: string, location_id: string, to_location_id: string, channel: string, sku_id: string, style_id: string,
+    qty: int, unit_price_local: real, amount_local: real, currency: string, session_id: string, reference_id: string,
+    source_system: string, scenario: string, record_label: string)
+
+.alter-merge table rt_events_raw policy retention softdelete = 7d recoverability = disabled
+
+// ---------------------------------------------------------------- typed tables
+.create-merge table rt_pos_transaction (event_id: string, event_ts: datetime, event_type: string, market_id: string,
+    location_id: string, channel: string, sku_id: string, style_id: string, qty: int, unit_price_local: real,
+    amount_local: real, currency: string, reference_id: string, scenario: string, record_label: string, ingested_at: datetime)
+
+.create-merge table rt_digital_event (event_id: string, event_ts: datetime, event_type: string, market_id: string,
+    channel: string, session_id: string, sku_id: string, style_id: string, qty: int, scenario: string,
+    record_label: string, ingested_at: datetime)
+
+.create-merge table rt_inventory_movement (event_id: string, event_ts: datetime, event_type: string, market_id: string,
+    location_id: string, to_location_id: string, sku_id: string, style_id: string, qty: int, signed_qty: int,
+    reference_id: string, source_system: string, scenario: string, record_label: string, ingested_at: datetime)
+
+// ---------------------------------------------------------------- fan-out (update policies)
+.create-or-alter function with (folder='ingest', docstring='rt_events_raw -> rt_pos_transaction (DS-15)')
+parse_pos_transaction() {
+    rt_events_raw
+    | where event_category == 'pos' and isnotempty(event_id) and isnotempty(sku_id)
+    | project event_id, event_ts, event_type, market_id, location_id, channel, sku_id, style_id, qty, unit_price_local,
+        amount_local, currency, reference_id, scenario, record_label, ingested_at = ingestion_time()
+}
+
+.create-or-alter function with (folder='ingest', docstring='rt_events_raw -> rt_digital_event (DS-16)')
+parse_digital_event() {
+    rt_events_raw
+    | where event_category == 'digital' and isnotempty(event_id) and isnotempty(style_id)
+    | project event_id, event_ts, event_type, market_id, channel, session_id, sku_id, style_id, qty, scenario,
+        record_label, ingested_at = ingestion_time()
+}
+
+.create-or-alter function with (folder='ingest', docstring='rt_events_raw -> rt_inventory_movement (DS-17); receipts and transfers in are +, shipments and transfers out are -')
+parse_inventory_movement() {
+    rt_events_raw
+    | where event_category == 'inventory' and isnotempty(event_id) and isnotempty(sku_id)
+    | extend signed_qty = case(event_type in ('receipt', 'transfer_in'), qty,
+                               event_type in ('transfer_out', 'shipment'), -qty,
+                               qty)
+    | extend signed_qty = toint(signed_qty)
+    | project event_id, event_ts, event_type, market_id, location_id, to_location_id, sku_id, style_id, qty, signed_qty,
+        reference_id, source_system, scenario, record_label, ingested_at = ingestion_time()
+}
+
+.alter table rt_pos_transaction policy update @'[{"IsEnabled":true,"Source":"rt_events_raw","Query":"parse_pos_transaction()","IsTransactional":false}]'
+
+.alter table rt_digital_event policy update @'[{"IsEnabled":true,"Source":"rt_events_raw","Query":"parse_digital_event()","IsTransactional":false}]'
+
+.alter table rt_inventory_movement policy update @'[{"IsEnabled":true,"Source":"rt_events_raw","Query":"parse_inventory_movement()","IsTransactional":false}]'
+
+.alter-merge table rt_pos_transaction policy retention softdelete = 90d
+
+.alter-merge table rt_digital_event policy retention softdelete = 90d
+
+.alter-merge table rt_inventory_movement policy retention softdelete = 90d
+
+// OneLake availability (DS-15..17): the typed tables are readable as Delta from OneLake by Spark, SQL and Direct Lake
+.alter-merge table rt_pos_transaction policy mirroring dataformat=parquet with (IsEnabled=true)
+
+.alter-merge table rt_digital_event policy mirroring dataformat=parquet with (IsEnabled=true)
+
+.alter-merge table rt_inventory_movement policy mirroring dataformat=parquet with (IsEnabled=true)
+
+// ---------------------------------------------------------------- de-duplicated views (DQ-01: re-sent events keep the latest ingest)
+.create-or-alter function with (folder='ingest', docstring='rt_pos_transaction, one row per event_id')
+pos_events() { rt_pos_transaction | summarize arg_max(ingested_at, *) by event_id }
+
+.create-or-alter function with (folder='ingest', docstring='rt_digital_event, one row per event_id')
+digital_events() { rt_digital_event | summarize arg_max(ingested_at, *) by event_id }
+
+.create-or-alter function with (folder='ingest', docstring='rt_inventory_movement, one row per event_id')
+inventory_events() { rt_inventory_movement | summarize arg_max(ingested_at, *) by event_id }
+
+// ---------------------------------------------------------------- Gold context (zero-copy OneLake external tables)
+.create-or-alter external table ext_gold_rebalancing_candidates kind=delta
+    (h@'abfss://{{workspace_id}}@onelake.dfs.fabric.microsoft.com/{{lh_medallion_id}}/Tables/gold/mart_rebalancing_candidates;impersonate')
+    with (folder='gold', docstring='lh_medallion gold.mart_rebalancing_candidates (daily batch view, SYNTHETIC)')
+
+.create-or-alter external table ext_gold_dim_product kind=delta
+    (h@'abfss://{{workspace_id}}@onelake.dfs.fabric.microsoft.com/{{lh_medallion_id}}/Tables/gold/dim_product;impersonate')
+    with (folder='gold', docstring='lh_medallion gold.dim_product (SYNTHETIC)')
+
+.create-or-alter external table ext_gold_dim_location kind=delta
+    (h@'abfss://{{workspace_id}}@onelake.dfs.fabric.microsoft.com/{{lh_medallion_id}}/Tables/gold/dim_location;impersonate')
+    with (folder='gold', docstring='lh_medallion gold.dim_location (SYNTHETIC)')
+
+.create-or-alter external table ext_gold_store_rebalancing kind=delta
+    (h@'abfss://{{workspace_id}}@onelake.dfs.fabric.microsoft.com/{{lh_medallion_id}}/Tables/gold/mart_store_rebalancing;impersonate')
+    with (folder='gold', docstring='lh_medallion gold.mart_store_rebalancing: per-store SHORT / DONOR view of T1 SKU-sizes (SYNTHETIC)')
+
+// ---------------------------------------------------------------- analytics
+.create-or-alter function with (folder='analytics', docstring='Intraday POS units and sales by hour x market x channel x style x SKU-size (DS-15)')
+fn_pos_hourly(lookback: timespan = 24h) {
+    pos_events()
+    | where event_ts > ago(lookback) and event_type == 'sale'
+    | summarize units = sum(qty), sales_local = sum(amount_local), transactions = count()
+        by hour = bin(event_ts, 1h), market_id, channel, style_id, sku_id
+}
+
+.create-or-alter function with (folder='analytics', docstring='Intent index per style x market as of a point in time: weighted digital intent per hour in the recent window over the baseline window (DS-16)')
+fn_intent_index_at(as_of: datetime, window: timespan = 2h, baseline: timespan = 22h) {
+    let now_ = as_of;
+    digital_events()
+    | where event_ts > now_ - window - baseline and event_ts <= now_
+    | extend w = case(event_type == 'add_to_cart', 3.0, event_type in ('wishlist_add', 'notify_me'), 2.0, 1.0) * qty
+    | summarize recent = sumif(w, event_ts > now_ - window), base = sumif(w, event_ts <= now_ - window),
+        product_views = sumif(qty, event_type == 'product_view' and event_ts > now_ - window),
+        carts = sumif(qty, event_type == 'add_to_cart' and event_ts > now_ - window)
+        by style_id, market_id
+    | extend recent_per_h = recent / (window / 1h), base_per_h = base / (baseline / 1h)
+    | extend intent_index_intraday = iff(base_per_h > 0, round(recent_per_h / base_per_h, 2), real(null))
+}
+
+.create-or-alter function with (folder='analytics', docstring='Intraday intent index per style x market, now (DS-16)')
+fn_intent_index(window: timespan = 2h, baseline: timespan = 22h) { fn_intent_index_at(now(), window, baseline) }
+
+.create-or-alter function with (folder='analytics', docstring='Net inventory change per location x SKU-size from DC and store movements (DS-17)')
+fn_inventory_net_change(lookback: timespan = 24h) {
+    inventory_events()
+    | where event_ts > ago(lookback)
+    | summarize net_units = sum(signed_qty), receipts = sumif(qty, event_type == 'receipt'),
+        transfers_in = sumif(qty, event_type == 'transfer_in'), transfers_out = sumif(qty, event_type == 'transfer_out'),
+        shipments = sumif(qty, event_type == 'shipment'), movements = count(), last_movement = max(event_ts)
+        by market_id, location_id, sku_id, style_id
+}
+
+.create-or-alter function with (folder='triggers', docstring='T1 projected stock-out as of a point in time: Gold daily position adjusted by POS sales and receipts in the lookback window; fires when weeks of cover < max_woc and intent index >= min_intent (requirements 6.3)')
+fn_t1_intraday_at(as_of: datetime, lookback: timespan = 24h, max_woc: real = 1.5, min_intent: real = 1.3) {
+    let base = external_table('ext_gold_rebalancing_candidates')
+        | where is_launch == true
+        | project sku_id, market_id, style_id, size, total_available_units, daily_rate_7d, batch_weeks_of_cover = weeks_of_cover,
+            intent_index_7d, demand_class, batch_t1 = t1_stockout_risk, as_of_date;
+    let pos = pos_events()
+        | where event_ts > as_of - lookback and event_ts <= as_of and event_type == 'sale'
+        | summarize rt_units = sum(qty), last_sale = max(event_ts) by sku_id, market_id;
+    let rcv = inventory_events()
+        | where event_ts > as_of - lookback and event_ts <= as_of and event_type == 'receipt'
+        | summarize rt_receipts = sum(qty) by sku_id, market_id;
+    let intent = fn_intent_index_at(as_of) | project style_id, market_id, intent_index_intraday;
+    base
+    | join kind=leftouter pos on sku_id, market_id
+    | join kind=leftouter rcv on sku_id, market_id
+    | join kind=leftouter intent on style_id, market_id
+    | extend rt_units = coalesce(rt_units, 0), rt_receipts = coalesce(rt_receipts, 0)
+    | extend intraday_available = max_of(0, total_available_units - rt_units + rt_receipts),
+             intraday_rate = max_of(coalesce(daily_rate_7d, 0.0), todouble(rt_units) / (lookback / 1d))
+    | extend intraday_weeks_of_cover = iff(intraday_rate > 0, round(intraday_available / (intraday_rate * 7), 2), real(null))
+    | extend intent_used = coalesce(intent_index_intraday, intent_index_7d)
+    | extend t1_intraday = intraday_weeks_of_cover < max_woc and intent_used >= min_intent
+    | project sku_id, style_id, size, market_id, total_available_units, rt_units, rt_receipts, intraday_available,
+        daily_rate_7d, intraday_rate, batch_weeks_of_cover, intraday_weeks_of_cover, intent_index_7d, intent_index_intraday,
+        demand_class, batch_t1, t1_intraday, last_sale, as_of_date
+}
+
+.create-or-alter function with (folder='triggers', docstring='T1 projected stock-out, intraday (now); see fn_t1_intraday_at')
+fn_t1_intraday(lookback: timespan = 24h, max_woc: real = 1.5, min_intent: real = 1.3) {
+    fn_t1_intraday_at(now(), lookback, max_woc, min_intent)
+}
+
+// ---------------------------------------------------------------- derived intraday signal (ontology time series)
+// Snapshots of fn_t1_intraday_at, one row per launch SKU-size x market per signal_ts. Appended by notebook
+// 06_rt_inventory_signal on a schedule and bound to the ontology entity InventoryPosition as a time series, so the
+// data agent can answer intraday weeks-of-cover / intent / T1 questions without a direct KQL source (D-18).
+.create-merge table rt_inventory_signal (signal_ts: datetime, sku_id: string, market_id: string, style_id: string,
+    size: string, total_available_units: long, rt_units: long, rt_receipts: long, intraday_available: long,
+    daily_rate_7d: real, intraday_rate: real, batch_weeks_of_cover: real, intraday_weeks_of_cover: real,
+    intent_index_7d: real, intent_index_intraday: real, intent_used: real, demand_class: string, batch_t1: bool,
+    t1_intraday: bool, last_sale: datetime, as_of_date: datetime, record_label: string, refreshed_at: datetime)
+
+.alter-merge table rt_inventory_signal policy retention softdelete = 30d recoverability = disabled
+
+.create-or-alter function with (folder='triggers', docstring='One rt_inventory_signal snapshot as of signal_ts (schema matches the table)')
+fn_inventory_signal_snapshot(signal_ts: datetime, lookback: timespan = 24h, max_woc: real = 1.5, min_intent: real = 1.3) {
+    fn_t1_intraday_at(signal_ts, lookback, max_woc, min_intent)
+    | project signal_ts = signal_ts, sku_id, market_id, style_id, size, total_available_units = tolong(total_available_units),
+        rt_units = tolong(rt_units), rt_receipts = tolong(rt_receipts), intraday_available = tolong(intraday_available),
+        daily_rate_7d = toreal(daily_rate_7d), intraday_rate = toreal(intraday_rate),
+        batch_weeks_of_cover = toreal(batch_weeks_of_cover), intraday_weeks_of_cover = toreal(intraday_weeks_of_cover),
+        intent_index_7d = toreal(intent_index_7d), intent_index_intraday = toreal(intent_index_intraday),
+        intent_used = toreal(coalesce(intent_index_intraday, intent_index_7d)), demand_class,
+        batch_t1 = tobool(batch_t1), t1_intraday = coalesce(tobool(t1_intraday), false), last_sale,
+        as_of_date = todatetime(as_of_date), record_label = 'SYNTHETIC', refreshed_at = now()
+}
+
+.create-or-alter function with (folder='triggers', docstring='SKU-size x market rows where T1 fires intraday (feeds Activator and the coworker agent)')
+fn_t1_alerts() {
+    fn_t1_intraday() | where t1_intraday | order by intraday_weeks_of_cover asc
+}
